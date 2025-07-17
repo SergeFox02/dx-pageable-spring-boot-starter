@@ -37,7 +37,7 @@ public class DxFilter<E> implements Specification<E> {
                 spec =  Specification.allOf(buildSpec(reader.readArray()));
             }
         }
-        this.conversionService = new DefaultConversionService();
+        this.conversionService = DefaultConversionService.getSharedInstance();
     }
 
     @Override
