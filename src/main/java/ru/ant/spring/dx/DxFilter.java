@@ -4,13 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonReader;
 import javax.json.JsonValue;
-import javax.persistence.criteria.*;
+import jakarta.persistence.criteria.*;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,10 +30,14 @@ public class DxFilter<E> implements Specification<E> {
     private final ConversionService conversionService;
 
     public DxFilter(String filter) {
-        spec = filter == null || filter.isEmpty()
-                ? null
-                : Specification.where(buildSpec(Json.createReader(new StringReader(filter)).readArray()));
-        conversionService = DxContextKeeper.getCtx().getBean(ConversionService.class);
+        if (filter == null || filter.isEmpty()) {
+            spec = null;
+        } else {
+            try (JsonReader reader = Json.createReader(new StringReader(filter))) {
+                spec =  Specification.anyOf(buildSpec(reader.readArray()));
+            }
+        }
+        this.conversionService = new DefaultConversionService();
     }
 
     @Override
