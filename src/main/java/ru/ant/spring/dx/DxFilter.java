@@ -34,7 +34,7 @@ public class DxFilter<E> implements Specification<E> {
             spec = null;
         } else {
             try (JsonReader reader = Json.createReader(new StringReader(filter))) {
-                spec =  Specification.anyOf(buildSpec(reader.readArray()));
+                spec =  Specification.allOf(buildSpec(reader.readArray()));
             }
         }
         this.conversionService = new DefaultConversionService();
